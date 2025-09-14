@@ -1,6 +1,6 @@
 "use client";
 
-import "../auth.css";
+import "@/styles/auth.css";
 import Icon from "@/components/Icons";
 
 export default function LoginForm({
@@ -44,7 +44,7 @@ export default function LoginForm({
         >
           <div className="form__field">
             <label htmlFor="login__email">
-				<Icon name="user" className="text-gray-500" />	
+				      <Icon name="user" fontSize="small" className="text-gray-500" />	
             </label>
             <input
               id="login__email"
@@ -60,7 +60,7 @@ export default function LoginForm({
 
           <div className="form__field">
             <label htmlFor="login__password">
-			  <Icon name="lock" className="text-gray-500" />	
+			        <Icon name="lock" fontSize="small" className="text-gray-500" />	
               <span className="hidden">Password</span>
             </label>
             <input
@@ -84,9 +84,7 @@ export default function LoginForm({
 
         <p className="text--center">
           Not a member? <a href="/signup">Sign up now</a>{" "}
-          <svg className="icon" aria-hidden="true">
-            <use xlinkHref="#icon-arrow-right" />
-          </svg>
+          <Icon name="arrow-right" fontSize="small" className="text-gray-500" />
         </p>
       </div>
     </main>
