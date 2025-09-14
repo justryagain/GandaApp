@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 	}
 	
     // Create user in Firebase
-    await authAdmin.createUser({
+    const user = await authAdmin.createUser({
       email,
       password,
       displayName,

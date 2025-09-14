@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Mint session cookie
-  const expiresInMs = 15 * 60 * 1000;
+  const expiresInMs = 5 * 24 * 60 * 60 * 1000;
   const cookie = await authAdmin.createSessionCookie(idToken, { expiresIn: expiresInMs });
 
   const res = NextResponse.redirect(new URL("/home", req.url));

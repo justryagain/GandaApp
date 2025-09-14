@@ -1,7 +1,7 @@
 import { getUserFromSession, getCsrfToken } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import LoginForm from "./LoginForm";
-import "@/styles/auth.css";
+import "../auth.css";
 
 export default async function LoginPage({
   searchParams,

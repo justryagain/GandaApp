@@ -1,4 +1,3 @@
-import type { DecodedIdToken } from "firebase-admin/auth";
 import { cookies, headers } from "next/headers";
 import { authAdmin } from "./firebaseAdmin";
 import crypto from "crypto";
@@ -7,7 +6,7 @@ export const SESSION_COOKIE = "__session";
 const CSRF_COOKIE = "csrf";
 const isProd = process.env.NODE_ENV === "production";
 
-export async function getUserFromSession(): Promise<DecodedIdToken | null> {
+export async function getUserFromSession() {
   const store = await cookies();
   const cookie = store.get(SESSION_COOKIE)?.value;
   if (!cookie) return null;

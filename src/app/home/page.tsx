@@ -1,14 +1,13 @@
 import { getUserFromSession, getCsrfToken } from "@/lib/auth";
-import type { DecodedIdToken } from "firebase-admin/auth";
 import { redirect } from "next/navigation";
-import "@/styles/auth.css";
+import "../auth.css";
 
 export default async function HomePage() {
-  const user: DecodedIdToken | null = await getUserFromSession();
+  const user = await getUserFromSession();
   if (!user) redirect("/login");
 
   const csrf = await getCsrfToken();
-  const fullName = user.name || user.email || "";
+  const fullName = (user as any).name || user.email;
 
   return (
     <main style={{ fontFamily: "system-ui, Segoe UI, Roboto, sans-serif", margin: 32 }}>

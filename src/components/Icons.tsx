@@ -1,28 +1,21 @@
 import PersonIcon from "@mui/icons-material/Person";
-import LockIcon from "@mui/icons-material/EnhancedEncryption";
+import LockIcon from "@mui/icons-material/Lock";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import EmailIcon from "@mui/icons-material/Email";
 
-type IconName =
-  "user" |
-  "lock" |
-  "arrow-right" |
-  "email";
+type IconName = "user" | "lock" | "arrow-right";
 
 interface IconProps {
   name: IconName;
   className?: string;
-  fontSize?: "inherit" | "small" | "medium" | "large";
 }
 
-export default function Icon({ name, className, fontSize }: IconProps) {
+export default function Icon({ name, className }: IconProps) {
   const icons = {
     user: PersonIcon,
     lock: LockIcon,
     "arrow-right": ArrowForwardIcon,
-    email: EmailIcon
   };
 
   const Component = icons[name];
-  return <Component className={className} fontSize={fontSize}/>;
+  return <Component className={className} />;
 }
