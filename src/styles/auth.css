@@ -62,10 +62,10 @@ input[type="submit"] { cursor: pointer; }
   --loginColor: #eee;
   --loginInputBackgroundColor: #3b4148;
   --loginInputHoverBackgroundColor: #434a52;
-  --loginLabelBackgroundColor: #363b41;
-  --loginSubmitBackgroundColor: #ea4c88;
+  --loginLabelBackgroundColor: #434a52;
+  --loginSubmitBackgroundColor: #0057fa;
   --loginSubmitColor: #eee;
-  --loginSubmitHoverBackgroundColor: #d44179;
+  --loginSubmitHoverBackgroundColor: #033eac;
 }
 .login { color: var(--loginColor); }
 .login label,
