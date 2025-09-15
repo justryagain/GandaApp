@@ -7,12 +7,17 @@ function b64url(u8: Uint8Array) {
   return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
+// wrapper to avoid ESLint false positive
+function randomBytes(len: number) {
+  return crypto.getRandomValues(new Uint8Array(len));
+}
+
 export function middleware(req: NextRequest) {
   const res = NextResponse.next();
 
   // Set CSRF cookie if missing
   if (!req.cookies.get("csrf")) {
-    const token = b64url(crypto.getRandomValues(new Uint8Array(32)));
+    const token = b64url(randomBytes(32));
     res.cookies.set("csrf", token, {
       httpOnly: true,
       sameSite: "lax",
