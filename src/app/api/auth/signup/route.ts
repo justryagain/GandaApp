@@ -31,6 +31,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.redirect(new URL("/signup?e=invalid", req.url));
   }
 
+  // Safe to disable: password vs confirm is user-provided in same request, no real timing attack risk here.
+  // eslint-disable-next-line security/detect-possible-timing-attacks
   if (password !== confirm) {
     const res = NextResponse.redirect(new URL("/signup?e=nomatch", req.url));
     res.cookies.set("signup_data", JSON.stringify({ first, last, email }), {
