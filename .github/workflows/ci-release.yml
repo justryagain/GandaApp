@@ -9,6 +9,12 @@ jobs:
   release-checks:
     runs-on: ubuntu-latest
     environment: dev
+    env:
+      FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+      FIREBASE_REQUIRE_EMAIL_VERIFICATION: ${{ vars.FIREBASE_REQUIRE_EMAIL_VERIFICATION }}
+      MAILER_API_KEY: ${{ secrets.MAILER_API_KEY }}
+      MAILERSEND_FROM: ${{ secrets.MAILERSEND_FROM }}
     steps:
       - uses: actions/checkout@v4
         with:
