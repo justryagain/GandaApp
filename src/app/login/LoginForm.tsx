@@ -1,7 +1,9 @@
 "use client";
 
 import "@/styles/auth.css";
+import { useState } from "react";
 import Icon from "@/components/Icons";
+import { notFound } from "next/navigation";
 
 export default function LoginForm({
   csrf,
@@ -12,6 +14,10 @@ export default function LoginForm({
   error?: string;
   checkEmail?: string;
 }) {
+
+  const [errMessage, setErrMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
   let errorMessage = "";
   switch (error) {
     case "csrf": errorMessage = "Session expired. Please try again."; break;
@@ -21,6 +27,33 @@ export default function LoginForm({
   }
 
   const infoMessage = checkEmail === "1" ? "Almost there! Confirm your email to activate your account and sign in." : "";
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrMessage("");
+
+    const form = new FormData(e.currentTarget);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        body: form,
+      });
+
+      if (res.ok) {
+        window.location.href = "/";
+      } else {
+        const data = await res.json();
+        setErrMessage(data.message || "Login failed");
+      }
+    } catch (err) {
+      console.error(err);
+      setErrMessage("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="align">
@@ -35,16 +68,16 @@ export default function LoginForm({
             {infoMessage}
           </p>
         )}
+        {errMessage && (
+          <p className="text--center" style={{ color: "#ffb3b3" }}>
+            {errMessage}
+          </p>
+        )}
 
-        <form
-          method="POST"
-          action="/api/auth/login"
-          className="form login"
-          autoComplete="off"
-        >
+        <form onSubmit={handleSubmit} className="form login" autoComplete="off">
           <div className="form__field">
             <label htmlFor="login__email">
-				      <Icon name="user" fontSize="small" className="text-gray-500" />	
+              <Icon name="user" fontSize="small" className="text-gray-500" />
             </label>
             <input
               id="login__email"
@@ -60,7 +93,7 @@ export default function LoginForm({
 
           <div className="form__field">
             <label htmlFor="login__password">
-			        <Icon name="lock" fontSize="small" className="text-gray-500" />	
+              <Icon name="lock" fontSize="small" className="text-gray-500" />
               <span className="hidden">Password</span>
             </label>
             <input
@@ -78,7 +111,11 @@ export default function LoginForm({
           <input type="hidden" name="_csrf" value={csrf} />
 
           <div className="form__field">
-            <input type="submit" value="Log In" />
+            <input
+              type="submit"
+              value={loading ? "Logging in..." : "Log In"}
+              disabled={loading}
+            />
           </div>
         </form>
 

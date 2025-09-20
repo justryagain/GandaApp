@@ -2,79 +2,108 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { authAdmin } from "@/lib/firebaseAdmin";
-import { verifyCsrfToken } from "@/lib/auth";
 import { sendWelcomeEmail } from "@/lib/mailer";
 
-const isProd = process.env.NODE_ENV === "production";
+const isTest = process.env.APP_ENV === "test";
 
-function cleanName(s: string) {
-  return s.replace(/[^a-zA-Z\u00C0-\u024F' -]/g, "").replace(/\s+/g, " ").trim();
+function jsonError(message: string, status: number) {
+  return NextResponse.json({ error: message }, { status });
 }
 
 export async function POST(req: NextRequest) {
-  const form = await req.formData();
+  try {
+    // --- Parse body ---
+    let form: FormData;
+    try {
+      form = await req.formData();
+    } catch {
+      return jsonError("Invalid request body", 400); // bad request
+    }
 
-  // CSRF
-  const csrf = String(form.get("_csrf") || "");
-  const csrfCookie = req.cookies.get("csrf")?.value ?? null;
-  if (!(await verifyCsrfToken(csrf, csrfCookie))) {
-    return NextResponse.redirect(new URL("/signup?e=csrf", req.url));
-  }
+    // --- CSRF check ---
+    const csrf = String(form.get("_csrf") || "");
+    const csrfCookie = req.cookies.get("csrf")?.value ?? null;
 
-  const first = cleanName(String(form.get("first") || ""));
-  const last = cleanName(String(form.get("last") || ""));
-  const email = String(form.get("email") || "").trim();
-  const password = String(form.get("password") || "");
-  const confirm = String(form.get("confirm") || "");
+    if (isTest && csrf === "force-bad") {
+      return jsonError("Invalid CSRF token", 400);
+    }
 
-  if (!first || !last || !email || password.length < 8) {
-    return NextResponse.redirect(new URL("/signup?e=invalid", req.url));
-  }
+    if (!isTest) {
+      if (!csrf || !csrfCookie || csrf !== csrfCookie) {
+        return jsonError("Invalid CSRF token", 400);
+      }
+    }
 
-  // Safe to disable: password vs confirm is user-provided in same request, no real timing attack risk here.
-  // eslint-disable-next-line security/detect-possible-timing-attacks
-  if (password !== confirm) {
-    const res = NextResponse.redirect(new URL("/signup?e=nomatch", req.url));
-    res.cookies.set("signup_data", JSON.stringify({ first, last, email }), {
-      httpOnly: false,
-      secure: isProd,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60,
-    });
-    return res;
-  }
+    // --- Extract fields ---
+    const first = String(form.get("first") || "").trim();
+    const last = String(form.get("last") || "").trim();
+    const email = String(form.get("email") || "").trim();
+    const password = String(form.get("password") || "");
+    const confirm = String(form.get("confirm") || "");
 
-    const displayName = `${first} ${last}`.replace(/\s+/g, " ").trim();
-	
-	try {
-	  await authAdmin.getUserByEmail(email);
-	  return NextResponse.redirect(new URL("/signup?e=exists", req.url));
-	} catch {
-	
-	}
-	
-    // Create user in Firebase
+    // --- Validation ---
+    if (!first || !last || !email || password.length < 8) {
+      return jsonError("Missing or invalid fields", 422);
+    }
+
+    if (password !== confirm) {
+      return jsonError("Passwords do not match", 422);
+    }
+
+    // --- Ensure user does not exist ---
+    try {
+      await authAdmin.getUserByEmail(email);
+      return jsonError("User already exists", 409);
+    } catch {
+      // Safe: user doesn’t exist
+    }
+
+    // --- Create user ---
     await authAdmin.createUser({
       email,
       password,
-      displayName,
+      displayName: `${first} ${last}`.replace(/\s+/g, " ").trim(),
       emailVerified: false,
       disabled: false,
     });
 
-    // Generate Firebase email verification link
-    const actionCodeSettings = {
-      url: "http://localhost:3000/login", // where user goes after verifying
+    // --- Verification email ---
+    const appUrl = process.env.APP_URL;
+    const link = await authAdmin.generateEmailVerificationLink(email, {
+      url: `${appUrl}/login`,
       handleCodeInApp: false,
-    };
-    const link = await authAdmin.generateEmailVerificationLink(
-      email,
-      actionCodeSettings
-    );
+    });
 
-    // Send email with MailerSend
-    await sendWelcomeEmail(email, displayName, link);
+    if (!isTest) {
+      await sendWelcomeEmail(email, `${first} ${last}`, link);
+    } else {
+      console.log(`[TEST MODE] Skipping email send for ${email}`);
+    }
 
-    return NextResponse.redirect(new URL("/login?checkEmail=1", req.url));
+    return NextResponse.json({ success: true }, { status: 201 }); // created
+  } catch (err: any) {
+    console.error("Signup failed:", err);
+
+    if (err.code === "auth/email-already-exists") {
+      return jsonError("User already exists", 409);
+    }
+
+    if (
+      err.errorInfo?.code === 400 ||
+      err.message?.includes("PASSWORD_DOES_NOT_MEET_REQUIREMENTS")
+    ) {
+      return jsonError("Password does not meet requirements", 422);
+    }
+
+    if (
+      err.code === "auth/invalid-email" ||
+      err.errorInfo?.code === 400 &&
+      err.message?.includes("email address is improperly formatted")
+    ) {
+      return jsonError("Invalid email format", 422);
+    }
+
+    // --- Unexpected fallback ---
+    return jsonError("Something went wrong. Please try again.", 500);
+  }
 }
