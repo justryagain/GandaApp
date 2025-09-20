@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
     env:
+      APP_ENV: test
       FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
       FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
       FIREBASE_REQUIRE_EMAIL_VERIFICATION: ${{ vars.FIREBASE_REQUIRE_EMAIL_VERIFICATION }}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import Icon from "@/components/Icons";
 import { useState } from "react";
 import "@/styles/auth.css";
@@ -11,7 +12,9 @@ type SignupData = {
 };
 
 export default function SignupForm({ signupData, csrf, error }: { signupData: SignupData; csrf: string;error?: string; }) {
+  const router = useRouter();
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const validRules = {
     lowerCase: /[a-z]/.test(password),
@@ -27,6 +30,38 @@ export default function SignupForm({ signupData, csrf, error }: { signupData: Si
     : error === "exists" ? "Account already exists or cannot be created."
     : null;
 
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (res.ok) {
+      // Success → go to login page
+      router.push("/login?checkEmail=1");
+    } else {
+      const { error } = await res.json();
+
+      if (error === "Invalid CSRF token") router.push("/signup?e=csrf");
+      else if (error === "Missing or invalid fields")
+        router.push("/signup?e=invalid");
+      else if (error === "Passwords do not match")
+        router.push("/signup?e=nomatch");
+      else if (error === "User already exists")
+        router.push("/signup?e=exists");
+      else if (error.includes("Password does not meet"))
+        router.push("/signup?e=weak-password");
+      else router.push("/signup?e=fail");
+    }
+
+    setLoading(false);
+  }
+
   return (
     <main className="align">
       <div className="grid">
@@ -37,6 +72,7 @@ export default function SignupForm({ signupData, csrf, error }: { signupData: Si
         )}
 
         <form
+          onSubmit={handleSubmit}
           method="POST"
           action="/api/auth/signup"
           className="form login"
