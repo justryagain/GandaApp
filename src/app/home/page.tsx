@@ -1,6 +1,6 @@
 import { getUserFromSession, getCsrfToken } from "@/lib/auth";
 import type { DecodedIdToken } from "firebase-admin/auth";
-import { redirect, notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import "@/styles/auth.css";
 
 export default async function HomePage() {

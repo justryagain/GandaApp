@@ -3,7 +3,6 @@
 import "@/styles/auth.css";
 import { useState } from "react";
 import Icon from "@/components/Icons";
-import { notFound } from "next/navigation";
 
 export default function LoginForm({
   csrf,

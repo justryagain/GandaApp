@@ -2,7 +2,9 @@ import { defineConfig } from "cypress";
 import admin from "firebase-admin";
 import * as dotenv from "dotenv";
 
-dotenv.config({ path: ".env.local" }) || dotenv.config();
+if (!dotenv.config({ path: ".env.local" }).parsed) {
+  dotenv.config();
+}
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -21,7 +23,7 @@ export default defineConfig({
     },
     baseUrl: process.env.APP_URL,
     testIsolation: true,
-    setupNodeEvents(on, _config) {
+    setupNodeEvents(on) {
       on("task", {
         async deleteFirebaseUser(email: string) {
           try {
