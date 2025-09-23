@@ -1,9 +1,21 @@
+type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+
+interface CheckApiOptions {
+  allowed?: HttpMethod[];
+  allowEmptyPost?: boolean;
+}
+
+interface ApiRoute {
+  route: string;
+  options: CheckApiOptions;
+}
+
 describe("Infra: API routes", () => {
-  const apiRoutes = [
+  const apiRoutes: ApiRoute[] = [
     { route: "/api/auth/login", options: { allowed: ["POST"] } },
     { route: "/api/auth/signup", options: { allowed: ["POST"] } },
     { route: "/api/auth/logout", options: { allowed: ["POST"], allowEmptyPost: true } },
-    { route: "/api/health", options: { allowed: ["GET"] } }
+    { route: "/api/health", options: { allowed: ["GET"] } },
   ];
 
   apiRoutes.forEach(({ route, options }) => {
