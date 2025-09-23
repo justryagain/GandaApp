@@ -3,11 +3,7 @@ import LockIcon from "@mui/icons-material/EnhancedEncryption";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import EmailIcon from "@mui/icons-material/Email";
 
-type IconName =
-  "user" |
-  "lock" |
-  "arrow-right" |
-  "email";
+type IconName = "user" | "lock" | "arrow-right" | "email";
 
 interface IconProps {
   name: IconName;
@@ -16,13 +12,20 @@ interface IconProps {
 }
 
 export default function Icon({ name, className, fontSize }: IconProps) {
-  const icons = {
-    user: PersonIcon,
-    lock: LockIcon,
-    "arrow-right": ArrowForwardIcon,
-    email: EmailIcon
-  } as const satisfies Record<IconName, React.ElementType>;
+  let Component;
 
-  const Component = icons[name];
-  return <Component className={className} fontSize={fontSize}/>;
+  switch (name) {
+    case "user": Component = PersonIcon;
+      break;
+    case "lock": Component = LockIcon;
+      break;
+    case "arrow-right": Component = ArrowForwardIcon;
+      break;
+    case "email": Component = EmailIcon;
+      break;
+    default:
+      Component = PersonIcon;
+  }
+
+  return <Component className={className} fontSize={fontSize} />;
 }

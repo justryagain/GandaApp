@@ -3,6 +3,7 @@ export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
 import { authAdmin } from "@/lib/firebaseAdmin";
 import { sendWelcomeEmail } from "@/lib/mailer";
+import crypto from "crypto";
 
 const isTest = process.env.APP_ENV === "test";
 
@@ -29,7 +30,14 @@ export async function POST(req: NextRequest) {
     }
 
     if (!isTest) {
-      if (!csrf || !csrfCookie || csrf !== csrfCookie) {
+      if (!csrf || !csrfCookie) {
+        return jsonError("Invalid CSRF token", 400);
+      }
+
+      const csrfBuf = Buffer.from(csrf, "utf8");
+      const cookieBuf = Buffer.from(csrfCookie, "utf8");
+
+      if (csrfBuf.length !== cookieBuf.length || !crypto.timingSafeEqual(csrfBuf, cookieBuf)) {
         return jsonError("Invalid CSRF token", 400);
       }
     }
@@ -46,6 +54,8 @@ export async function POST(req: NextRequest) {
       return jsonError("Missing or invalid fields", 422);
     }
 
+    // Safe: both values come from user input, no secret involved
+    // eslint-disable-next-line security/detect-possible-timing-attacks
     if (password !== confirm) {
       return jsonError("Passwords do not match", 422);
     }

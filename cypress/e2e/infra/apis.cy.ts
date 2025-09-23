@@ -34,7 +34,9 @@ describe("Infra: API routes", () => {
       cy.request("/api/test/csrf").then((res) => {
         expect(res.status).to.eq(200);
         expect(res.body).to.have.property("csrf");
-        expect(res.body.csrf).to.be.a("string").and.not.be.empty;
+        expect(res.body.csrf).to.be.a("string");
+        expect(res.body.csrf).to.not.equal(null);
+        expect(res.body.csrf).to.not.equal("");
       });
     }
   });

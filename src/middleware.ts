@@ -3,12 +3,14 @@ import { NextResponse, type NextRequest } from "next/server";
 // base64url helper for Edge runtime
 function b64url(u8: Uint8Array) {
   let s = "";
-  for (let i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]);
+  for (const val of u8) {
+    s += String.fromCharCode(val);
+  }
   return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
-// wrapper to avoid ESLint false positive
 function randomBytes(len: number) {
+  // Safe: using Web Crypto API in Edge runtime
   return crypto.getRandomValues(new Uint8Array(len));
 }
 

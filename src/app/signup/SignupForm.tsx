@@ -11,7 +11,7 @@ type SignupData = {
   email?: string;
 };
 
-export default function SignupForm({ signupData, csrf, error }: { signupData: SignupData; csrf: string;error?: string; }) {
+export default function SignupForm({ signupData, csrf, error }: { signupData: SignupData; csrf: string; error?: string; }) {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,10 +25,10 @@ export default function SignupForm({ signupData, csrf, error }: { signupData: Si
 
   const msg =
     error === "csrf" ? "Session expired. Try again."
-    : error === "invalid" ? "Please check your inputs."
-    : error === "nomatch" ? "Passwords do not match."
-    : error === "exists" ? "Account already exists or cannot be created."
-    : null;
+      : error === "invalid" ? "Please check your inputs."
+        : error === "nomatch" ? "Passwords do not match."
+          : error === "exists" ? "Account already exists or cannot be created."
+            : null;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -82,7 +82,7 @@ export default function SignupForm({ signupData, csrf, error }: { signupData: Si
 
           <div className="form__field">
             <label htmlFor="signup__first">
-              <Icon name="user" fontSize="small" className="text-gray-500" />	
+              <Icon name="user" fontSize="small" className="text-gray-500" />
               <span className="hidden">First name</span>
             </label>
             <input
@@ -154,7 +154,7 @@ export default function SignupForm({ signupData, csrf, error }: { signupData: Si
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-		  
+
           {/* Confirm password */}
           <div className="form__field">
             <label htmlFor="signup__confirm">
@@ -173,52 +173,52 @@ export default function SignupForm({ signupData, csrf, error }: { signupData: Si
               maxLength={256}
             />
           </div>
-		  
-		  {/* Password validation rules */}
-		  {password.length > 0 && (
-		    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6 text-xs opacity-80 my-3">
-			  <div className="flex items-center">
-			    <div
-				  className={`w-2 h-2 rounded-full mr-2 ${
-				    validRules.upperCase ? "bg-green-500" : "bg-gray-400"
-				  }`}
-			    />
-			    <span>Uppercase [A-Z]</span>
-			  </div>
 
-			  <div className="flex items-center">
-			    <div
-				  className={`w-2 h-2 rounded-full mr-2 ${
-				    validRules.lowerCase ? "bg-green-500" : "bg-gray-400"
-				  }`}
-			    />
-			    <span>Lowercase [a-z]</span>
-			  </div>
+          {/* Password validation rules */}
+          {password.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6 text-xs opacity-80 my-3">
+              <div className="flex items-center">
+                <div
+                  className={`w-2 h-2 rounded-full mr-2 ${validRules.upperCase ? "bg-green-500" : "bg-gray-400"
+                    }`}
+                />
+                <span>Uppercase [A-Z]</span>
+              </div>
 
-			  <div className="flex items-center">
-			    <div
-				  className={`w-2 h-2 rounded-full mr-2 ${
-				    validRules.oneNumber ? "bg-green-500" : "bg-gray-400"
-				  }`}
-			    />
-			    <span>Number [0-9]</span>
-			  </div>
+              <div className="flex items-center">
+                <div
+                  className={`w-2 h-2 rounded-full mr-2 ${validRules.lowerCase ? "bg-green-500" : "bg-gray-400"
+                    }`}
+                />
+                <span>Lowercase [a-z]</span>
+              </div>
 
-			  <div className="flex items-center">
-			    <div
-				  className={`w-2 h-2 rounded-full mr-2 ${
-				    validRules.charactersCount ? "bg-green-500" : "bg-gray-400"
-				  }`}
-			    />
-			    <span>Length [+8]</span>
-			  </div>
-		    </div>
-		  )}
+              <div className="flex items-center">
+                <div
+                  className={`w-2 h-2 rounded-full mr-2 ${validRules.oneNumber ? "bg-green-500" : "bg-gray-400"
+                    }`}
+                />
+                <span>Number [0-9]</span>
+              </div>
+
+              <div className="flex items-center">
+                <div
+                  className={`w-2 h-2 rounded-full mr-2 ${validRules.charactersCount ? "bg-green-500" : "bg-gray-400"
+                    }`}
+                />
+                <span>Length [+8]</span>
+              </div>
+            </div>
+          )}
 
           <input type="hidden" name="_csrf" value={csrf} />
 
           <div className="form__field">
-            <input type="submit" value="Create Account" />
+            <input
+              type="submit"
+              value={loading ? "Creating account..." : "Create Account"}
+              disabled={loading}
+            />
           </div>
         </form>
 
