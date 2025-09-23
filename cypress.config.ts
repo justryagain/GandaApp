@@ -12,6 +12,8 @@ if (!admin.apps.length) {
   });
 }
 
+type FirebaseAuthError = Error & { code?: string };
+
 export default defineConfig({
   e2e: {
     env: {
@@ -28,13 +30,15 @@ export default defineConfig({
             return { success: true };
           } catch (err) {
             if (err instanceof Error) {
-              // Firebase Admin has its own error codes
-              if ((err as any).code === "auth/user-not-found") {
+              const fbErr = err as FirebaseAuthError;
+
+              if (fbErr.code === "auth/user-not-found") {
                 return { success: true, skipped: true };
               }
+
               return { success: false, error: err.message };
             }
-            // fallback if something weird gets thrown
+
             return { success: false, error: String(err) };
           }
         },
