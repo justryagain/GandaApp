@@ -11,11 +11,12 @@ jobs:
     environment: dev
     env:
       APP_ENV: test
+      APP_URL: ${{ vars.APP_URL }}
       FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
       FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
       FIREBASE_REQUIRE_EMAIL_VERIFICATION: ${{ vars.FIREBASE_REQUIRE_EMAIL_VERIFICATION }}
       MAILER_API_KEY: ${{ secrets.MAILER_API_KEY }}
-      MAILERSEND_FROM: ${{ secrets.MAILERSEND_FROM }}
+      MAILERSEND_FROM: ${{ vars.MAILERSEND_FROM }}
     steps:
       - uses: actions/checkout@v4
 
