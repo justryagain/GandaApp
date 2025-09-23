@@ -81,29 +81,32 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true }, { status: 201 }); // created
-  } catch (err: any) {
+  } catch (err) {
     console.error("Signup failed:", err);
 
-    if (err.code === "auth/email-already-exists") {
-      return jsonError("User already exists", 409);
+    if (typeof err === "object" && err !== null) {
+      const error = err as { code?: string; errorInfo?: { code?: number }; message?: string };
+
+      if (error.code === "auth/email-already-exists") {
+        return jsonError("User already exists", 409);
+      }
+
+      if (
+        error.errorInfo?.code === 400 ||
+        error.message?.includes("PASSWORD_DOES_NOT_MEET_REQUIREMENTS")
+      ) {
+        return jsonError("Password does not meet requirements", 422);
+      }
+
+      if (
+        error.code === "auth/invalid-email" ||
+        (error.errorInfo?.code === 400 &&
+          error.message?.includes("email address is improperly formatted"))
+      ) {
+        return jsonError("Invalid email format", 422);
+      }
     }
 
-    if (
-      err.errorInfo?.code === 400 ||
-      err.message?.includes("PASSWORD_DOES_NOT_MEET_REQUIREMENTS")
-    ) {
-      return jsonError("Password does not meet requirements", 422);
-    }
-
-    if (
-      err.code === "auth/invalid-email" ||
-      err.errorInfo?.code === 400 &&
-      err.message?.includes("email address is improperly formatted")
-    ) {
-      return jsonError("Invalid email format", 422);
-    }
-
-    // --- Unexpected fallback ---
     return jsonError("Something went wrong. Please try again.", 500);
   }
 }

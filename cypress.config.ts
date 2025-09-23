@@ -19,18 +19,23 @@ export default defineConfig({
     },
     baseUrl: process.env.APP_URL,
     testIsolation: true,
-    setupNodeEvents(on, config) {
+    setupNodeEvents(on, _config) {
       on("task", {
         async deleteFirebaseUser(email: string) {
           try {
             const user = await admin.auth().getUserByEmail(email);
             await admin.auth().deleteUser(user.uid);
             return { success: true };
-          } catch (err: any) {
-            if (err.code === "auth/user-not-found") {
-              return { success: true, skipped: true };
+          } catch (err) {
+            if (err instanceof Error) {
+              // Firebase Admin has its own error codes
+              if ((err as any).code === "auth/user-not-found") {
+                return { success: true, skipped: true };
+              }
+              return { success: false, error: err.message };
             }
-            return { success: false, error: err.message };
+            // fallback if something weird gets thrown
+            return { success: false, error: String(err) };
           }
         },
       });

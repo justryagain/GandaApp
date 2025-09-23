@@ -1,8 +1,4 @@
 describe("Smoke: Core Pages", () => {
-  before(() => {
-    cy.health();
-  });
-
   it("Login page renders", () => {
     cy.request("/login").its("status").should("eq", 200);
     cy.visit("/login");
@@ -23,8 +19,8 @@ describe("Smoke: Core Pages", () => {
   });
 
   it("Unknown route shows 404 page", () => {
-  cy.request({ url: "/does-not-exist", failOnStatusCode: false })
-    .its("status")
-    .should("eq", 404);
-});
+    cy.request({ url: "/does-not-exist", failOnStatusCode: false })
+      .its("status")
+      .should("eq", 404);
+  });
 });
