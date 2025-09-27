@@ -54,4 +54,4 @@ jobs:
         run: npx eslint . --ext .js,.ts --max-warnings=0
 
       - name: Build Docker image
-        run: docker build -t my-app:test .
+        run: docker build -t ganda-app:${{ github.sha }} .
