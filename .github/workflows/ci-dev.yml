@@ -53,14 +53,19 @@ jobs:
       - name: Run security linting
         run: npx eslint . --ext .js,.ts --max-warnings=0
 
-      - name: Build Docker image
-        run: |
-          docker build \
-            -t ganda-app:${{ github.sha }} \
-            --build-arg FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} \
-            --build-arg FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }} \
-            --build-arg MAILERSEND_API_KEY=${{ secrets.MAILERSEND_API_KEY }} \
-            --build-arg APP_URL=${{ vars.APP_URL }} \
-            --build-arg FIREBASE_REQUIRE_EMAIL_VERIFICATION=${{ vars.FIREBASE_REQUIRE_EMAIL_VERIFICATION }} \
-            --build-arg MAILERSEND_FROM=${{ vars.MAILERSEND_FROM }} \
-            .
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image (no push)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: ganda-app:${{ github.sha }}
+          build-args: |
+            FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}
+            FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+            MAILERSEND_API_KEY=${{ secrets.MAILERSEND_API_KEY }}
+            APP_URL=${{ vars.APP_URL }}
+            FIREBASE_REQUIRE_EMAIL_VERIFICATION=${{ vars.FIREBASE_REQUIRE_EMAIL_VERIFICATION }}
+            MAILERSEND_FROM=${{ vars.MAILERSEND_FROM }}
