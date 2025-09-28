@@ -35,7 +35,7 @@ const serviceAccount = loadServiceAccount();
 
 if (!admin.apps.length) {
   if (!serviceAccount) {
-    throw new Error("Firebase service account is not set");
+    throw new Error("Firebase service account is not set or invalid");
   }
 
   app = admin.initializeApp({
