@@ -54,4 +54,12 @@ jobs:
         run: npx eslint . --ext .js,.ts --max-warnings=0
 
       - name: Build Docker image
-        run: docker build -t ganda-app:${{ github.sha }} --build-arg FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} --build-arg FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }} --build-arg MAILERSEND_API_KEY=${{ secrets.MAILERSEND_API_KEY }} --build-arg APP_URL=${{ vars.APP_URL }} --build-arg FIREBASE_REQUIRE_EMAIL_VERIFICATION=${{ vars.FIREBASE_REQUIRE_EMAIL_VERIFICATION }} --build-arg MAILERSEND_FROM=${{ vars.MAILERSEND_FROM }} .
+        run: |
+          docker build . \
+            -t ganda-app:${{ github.sha }} \
+            --build-arg FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} \
+            --build-arg FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }} \
+            --build-arg MAILERSEND_API_KEY=${{ secrets.MAILERSEND_API_KEY }} \
+            --build-arg APP_URL=${{ vars.APP_URL }} \
+            --build-arg FIREBASE_REQUIRE_EMAIL_VERIFICATION=${{ vars.FIREBASE_REQUIRE_EMAIL_VERIFICATION }} \
+            --build-arg MAILERSEND_FROM=${{ vars.MAILERSEND_FROM }}
