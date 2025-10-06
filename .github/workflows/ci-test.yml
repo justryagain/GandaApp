@@ -3,7 +3,7 @@ name: CI Integration Test
 on:
   push:
     branches:
-      - your-new-branch # change to your branch name
+      - test
   pull_request:
 
 jobs:
