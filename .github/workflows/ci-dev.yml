@@ -40,6 +40,11 @@ jobs:
       - name: Run build
         run: npm run build
 
+      - name: Decode Firebase service account for Cypress
+        run: |
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}" | base64 --decode > serviceAccount.json
+          echo "FIREBASE_SERVICE_ACCOUNT=$(cat serviceAccount.json | jq -c .)" >> $GITHUB_ENV
+
       - name: Run Cypress E2E tests
         uses: cypress-io/github-action@v6
         env:
