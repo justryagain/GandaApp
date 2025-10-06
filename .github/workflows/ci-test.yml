@@ -15,6 +15,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check secret length
+        run: |
+          echo "Secret length: $(echo -n '${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}' | wc -c)"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
