@@ -3,11 +3,7 @@ name: CI Integration Test
 on:
   push:
     branches:
-      - your-new-branch # change this
-  pull_request:
-    branches:
-      - your-new-branch # optional
-
+      - test
 jobs:
   integration-test:
     runs-on: ubuntu-latest
