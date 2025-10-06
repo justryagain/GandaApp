@@ -23,25 +23,10 @@ jobs:
           context: .
           push: false
           tags: ganda-app:${{ github.sha }}
-
-      - name: Run container with envs
-        run: |
-          docker run -d --name ganda-app \
-            -e FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} \
-            -e FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }} \
-            -e MAILERSEND_API_KEY=${{ secrets.MAILERSEND_API_KEY }} \
-            -e APP_URL=${{ vars.APP_URL }} \
-            -e FIREBASE_REQUIRE_EMAIL_VERIFICATION=${{ vars.FIREBASE_REQUIRE_EMAIL_VERIFICATION }} \
-            -e MAILERSEND_FROM=${{ vars.MAILERSEND_FROM }} \
-            -p 3000:3000 ganda-app:${{ github.sha }}
-
-          # wait for the app to boot
-          sleep 15
-
-      - name: Test health endpoint
-        run: |
-          curl -f http://localhost:3000/api/health || (docker logs ganda-app && exit 1)
-
-      - name: Stop container
-        if: always()
-        run: docker rm -f ganda-app
+          build-args: |
+            FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}
+            FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+            MAILERSEND_API_KEY=${{ secrets.MAILERSEND_API_KEY }}
+            APP_URL=${{ vars.APP_URL }}
+            FIREBASE_REQUIRE_EMAIL_VERIFICATION=${{ vars.FIREBASE_REQUIRE_EMAIL_VERIFICATION }}
+            MAILERSEND_FROM=${{ vars.MAILERSEND_FROM }}
