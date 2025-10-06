@@ -31,12 +31,6 @@ jobs:
           build-args: |
             FIREBASE_SERVICE_ACCOUNT_BASE64=${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}
 
-      - name: Run container with envs
-        run: |
-          docker run -d --name ganda-app \
-            -e FIREBASE_SERVICE_ACCOUNT_BASE64=${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }} \
-            -p 3000:3000 ganda-app:${{ github.sha }}
-
       - name: Cleanup
         if: always()
         run: docker rm -f ganda-app || true
