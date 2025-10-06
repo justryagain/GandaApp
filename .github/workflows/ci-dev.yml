@@ -68,6 +68,7 @@ jobs:
         with:
           context: .
           push: false
+          load: true
           tags: ganda-app:${{ github.sha }}
           build-args: |
             FIREBASE_SERVICE_ACCOUNT_BASE64=${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}
