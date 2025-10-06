@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - test
+
 jobs:
   integration-test:
     runs-on: ubuntu-latest
@@ -30,6 +31,14 @@ jobs:
           tags: ganda-app:${{ github.sha }}
           build-args: |
             FIREBASE_SERVICE_ACCOUNT_BASE64=${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}
+
+      - name: Run container
+        run: |
+          docker run -d --name ganda-app \
+            -e FIREBASE_SERVICE_ACCOUNT_BASE64=${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }} \
+            -p 3000:3000 ganda-app:${{ github.sha }}
+
+          echo "Container started successfully"
 
       - name: Cleanup
         if: always()
