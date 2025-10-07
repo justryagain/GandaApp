@@ -9,6 +9,9 @@ jobs:
   checks:
     runs-on: ubuntu-latest
     environment: dev
+    defaults:
+      run:
+        working-directory: app
     env:
       APP_ENV: test
       APP_URL: ${{ vars.APP_URL }}
@@ -57,7 +60,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-build
-          path: .next/
+          path: /home/runner/work/GandaApp/GandaApp/.next/
 
       - name: Run npm audit (dependencies)
         run: npm audit --production
