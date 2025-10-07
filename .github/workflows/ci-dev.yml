@@ -2,11 +2,11 @@ name: Dev CI
 
 on:
   push:
-    branches:
-      - dev
+    branches: [dev]
 
 jobs:
-  dev-checks:
+  # 1) Lint + typecheck + unit + build + security
+  checks:
     runs-on: ubuntu-latest
     environment: dev
     env:
@@ -25,6 +25,14 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
       - name: Install dependencies
         run: npm ci
 
@@ -37,8 +45,50 @@ jobs:
       - name: Run unit tests
         run: npm test
 
-      - name: Run build
+      - name: Build (Next.js)
         run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-build
+          path: .next/
+
+      - name: Run npm audit (dependencies)
+        run: npm audit --production
+
+      - name: Run security linting
+        run: npx eslint . --ext .js,.ts --max-warnings=0
+
+  # 2) Cypress E2E
+  e2e:
+    runs-on: ubuntu-latest
+    environment: dev
+    needs: checks
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-build
+          path: .next/
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Decode Firebase service account for Cypress
         run: |
@@ -49,36 +99,49 @@ jobs:
         uses: cypress-io/github-action@v6
         env:
           FIREBASE_SERVICE_ACCOUNT_BASE64: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}
+          APP_URL: ${{ vars.APP_URL }}
         with:
           build: npm run build
           start: npm start
           wait-on: "http://localhost:3000"
 
-      - name: Run npm audit (dependencies)
-        run: npm audit --production
+  # 3) Docker build + smoke run
+  docker:
+    runs-on: ubuntu-latest
+    environment: dev
+    needs: e2e
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Run security linting
-        run: npx eslint . --ext .js,.ts --max-warnings=0
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-build
+          path: .next/
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
+      - name: Build Docker image (with cache)
         uses: docker/build-push-action@v5
         with:
           context: .
           push: false
           load: true
           tags: ganda-app:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
             FIREBASE_SERVICE_ACCOUNT_BASE64=${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}
 
-      - name: Run container
+      - name: Run container (port 3100 -> 3000)
         run: |
-          docker images
+          IMAGE_NAME="ganda-app:${{ github.sha }}"
+          echo "Running container from image: $IMAGE_NAME"
           docker run -d --name ganda-app \
             -e FIREBASE_SERVICE_ACCOUNT_BASE64="${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}" \
-            -p 3100:3000 "ganda-app:${{ github.sha }}"
+            -p 3100:3000 "$IMAGE_NAME"
+          echo "Container started on http://localhost:3100"
 
       - name: Cleanup
         if: always()
