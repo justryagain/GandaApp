@@ -48,10 +48,10 @@ jobs:
       - name: Build (Next.js)
         run: npm run build
 
-      - name: Check working directory
+      - name: Locate Next.js build output
         run: |
-          pwd
-          ls -R | grep "\.next" || echo "❌ No .next folder found"
+          echo "Looking for .next or other build folders..."
+          find /home/runner/work/GandaApp -maxdepth 4 -type d \( -name ".next" -o -name "dist" -o -name ".build" \) || echo "❌ No build folder found"
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
