@@ -70,6 +70,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
     needs: build_and_checks
+    env:
+      APP_ENV: test
     steps:
       - uses: actions/checkout@v4
 
@@ -146,7 +148,7 @@ jobs:
           build-args: |
             FIREBASE_SERVICE_ACCOUNT_BASE64=${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}
 
-      - name: Run container (port 3100 -> 3000)
+      - name: Run container
         run: |
           IMAGE_NAME="ganda-app:${{ github.sha }}"
           echo "Running container from image: $IMAGE_NAME"
