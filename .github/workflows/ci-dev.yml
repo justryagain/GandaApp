@@ -75,15 +75,10 @@ jobs:
 
       - name: Run container
         run: |
-          IMAGE_NAME="ganda-app:${{ github.sha }}"
-          echo "Running container from image: $IMAGE_NAME"
-
           docker images
           docker run -d --name ganda-app \
             -e FIREBASE_SERVICE_ACCOUNT_BASE64="${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}" \
-            -p 3000:3000 "$IMAGE_NAME"
-
-          echo "✅ Container started successfully"
+            -p 3100:3000 "ganda-app:${{ github.sha }}"
 
       - name: Cleanup
         if: always()
