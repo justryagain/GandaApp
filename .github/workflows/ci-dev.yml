@@ -48,16 +48,17 @@ jobs:
       - name: Build (Next.js)
         run: npm run build
 
-      - name: Locate Next.js build output
+      - name: Verify .next folder
         run: |
-          echo "Looking for .next or other build folders..."
-          find /home/runner/work/GandaApp -maxdepth 4 -type d \( -name ".next" -o -name "dist" -o -name ".build" \) || echo "❌ No build folder found"
+          echo "Current directory: $(pwd)"
+          echo "Listing .next contents:"
+          ls -la .next || echo "❌ .next not found"
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-build
-          path: ${{ github.workspace }}/.next/
+          path: .next
 
       - name: Run npm audit (dependencies)
         run: npm audit --production
@@ -77,7 +78,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: app-build
-          path: ${{ github.workspace }}/.next/
+          path: .next
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -122,7 +123,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: app-build
-          path: ${{ github.workspace }}/.next/
+          path: .next
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
