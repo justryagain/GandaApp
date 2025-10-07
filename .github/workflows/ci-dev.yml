@@ -48,6 +48,11 @@ jobs:
       - name: Build (Next.js)
         run: npm run build
 
+      - name: Check working directory
+        run: |
+          pwd
+          ls -R | grep "\.next" || echo "❌ No .next folder found"
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
