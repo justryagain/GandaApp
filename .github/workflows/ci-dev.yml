@@ -9,9 +9,6 @@ jobs:
   checks:
     runs-on: ubuntu-latest
     environment: dev
-    defaults:
-      run:
-        working-directory: app
     env:
       APP_ENV: test
       APP_URL: ${{ vars.APP_URL }}
@@ -60,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-build
-          path: /home/runner/work/GandaApp/GandaApp/.next/
+          path: ${{ github.workspace }}/.next/
 
       - name: Run npm audit (dependencies)
         run: npm audit --production
@@ -80,7 +77,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: app-build
-          path: .next/
+          path: ${{ github.workspace }}/.next/
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -125,7 +122,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: app-build
-          path: .next/
+          path: ${{ github.workspace }}/.next/
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
