@@ -48,17 +48,11 @@ jobs:
       - name: Build (Next.js)
         run: npm run build
 
-      - name: Verify .next folder
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Listing .next contents:"
-          ls -la .next || echo "❌ .next not found"
-
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-build
-          path: .next
+          path: .next/**/*
 
       - name: Run npm audit (dependencies)
         run: npm audit --production
