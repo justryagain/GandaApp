@@ -48,11 +48,16 @@ jobs:
       - name: Build (Next.js)
         run: npm run build
 
+      - name: Package Next build
+        run: |
+          tar -czf next-build.tgz .next
+          ls -lh next-build.tgz
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-build
-          path: .next/**/*
+          path: next-build.tgz
 
       - name: Run npm audit (dependencies)
         run: npm audit --production
@@ -72,7 +77,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: app-build
-          path: .next
+
+      - name: Unpack Next build
+        run: |
+          tar -xzf next-build.tgz
+          ls -la .next | head
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -117,7 +126,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: app-build
-          path: .next
+
+      - name: Unpack Next build
+        run: |
+          tar -xzf next-build.tgz
+          ls -la .next | head
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
