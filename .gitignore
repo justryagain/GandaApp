@@ -33,6 +33,19 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-#firebase
+# firebase
 serviceAccountKey.json
 serviceAccountKey.b64
+
+# CI speed optimization
+.git
+node_modules
+Dockerfile*
+docker-compose*
+.gitignore
+.github
+README.md
+**/*.log
+.next/cache
+cypress/videos
+cypress/screenshots
