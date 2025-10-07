@@ -6,7 +6,7 @@ on:
 
 jobs:
   # 1) Lint + typecheck + unit + build + security
-  checks:
+  build_and_checks:
     runs-on: ubuntu-latest
     environment: dev
     env:
@@ -66,10 +66,10 @@ jobs:
         run: npx eslint . --ext .js,.ts --max-warnings=0
 
   # 2) Cypress E2E
-  e2e:
+  cypress_e2e:
     runs-on: ubuntu-latest
     environment: dev
-    needs: checks
+    needs: build_and_checks
     steps:
       - uses: actions/checkout@v4
 
@@ -110,15 +110,14 @@ jobs:
           FIREBASE_SERVICE_ACCOUNT_BASE64: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}
           APP_URL: ${{ vars.APP_URL }}
         with:
-          build: npm run build
           start: npm start
           wait-on: "http://localhost:3000"
 
   # 3) Docker build + smoke run
-  docker:
+  docker_build:
     runs-on: ubuntu-latest
     environment: dev
-    needs: e2e
+    needs: build_and_checks
     steps:
       - uses: actions/checkout@v4
 
